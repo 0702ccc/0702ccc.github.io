@@ -1,16 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>Tags on Example Site</title>
+        <title>Tags on Lijt&#39;s Blog</title>
         <link>https://0702ccc.github.io/tags/</link>
-        <description>Recent content in Tags on Example Site</description>
+        <description>Recent content in Tags on Lijt&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>Example Person</copyright>
-        <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://0702ccc.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <copyright>LiJT</copyright>
+        <lastBuildDate>Tue, 05 Mar 2024 11:54:21 +0800</lastBuildDate><atom:link href="https://0702ccc.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Algorithm</title>
+        <link>https://0702ccc.github.io/tags/algorithm/</link>
+        <pubDate>Tue, 05 Mar 2024 11:54:21 +0800</pubDate>
+        
+        <guid>https://0702ccc.github.io/tags/algorithm/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Project</title>
+        <link>https://0702ccc.github.io/tags/project/</link>
+        <pubDate>Tue, 05 Mar 2024 11:54:21 +0800</pubDate>
+        
+        <guid>https://0702ccc.github.io/tags/project/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Tomasulo</title>
+        <link>https://0702ccc.github.io/tags/tomasulo/</link>
+        <pubDate>Tue, 05 Mar 2024 11:54:21 +0800</pubDate>
+        
+        <guid>https://0702ccc.github.io/tags/tomasulo/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Distributed</title>
+        <link>https://0702ccc.github.io/tags/distributed/</link>
+        <pubDate>Mon, 04 Mar 2024 01:02:05 +0800</pubDate>
+        
+        <guid>https://0702ccc.github.io/tags/distributed/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Css</title>
         <link>https://0702ccc.github.io/tags/css/</link>
-        <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+        <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
         
         <guid>https://0702ccc.github.io/tags/css/</guid>
         <description></description>
@@ -18,7 +50,7 @@
         <item>
         <title>Html</title>
         <link>https://0702ccc.github.io/tags/html/</link>
-        <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+        <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
         
         <guid>https://0702ccc.github.io/tags/html/</guid>
         <description></description>
@@ -26,7 +58,7 @@
         <item>
         <title>Markdown</title>
         <link>https://0702ccc.github.io/tags/markdown/</link>
-        <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+        <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
         
         <guid>https://0702ccc.github.io/tags/markdown/</guid>
         <description></description>
@@ -34,49 +66,9 @@
         <item>
         <title>Themes</title>
         <link>https://0702ccc.github.io/tags/themes/</link>
-        <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+        <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
         
         <guid>https://0702ccc.github.io/tags/themes/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Privacy</title>
-        <link>https://0702ccc.github.io/tags/privacy/</link>
-        <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-        
-        <guid>https://0702ccc.github.io/tags/privacy/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Shortcodes</title>
-        <link>https://0702ccc.github.io/tags/shortcodes/</link>
-        <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
-        
-        <guid>https://0702ccc.github.io/tags/shortcodes/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Tag With Whitespaces</title>
-        <link>https://0702ccc.github.io/tags/tag-with-whitespaces/</link>
-        <pubDate>Sat, 09 Mar 2019 00:00:00 +0000</pubDate>
-        
-        <guid>https://0702ccc.github.io/tags/tag-with-whitespaces/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Text</title>
-        <link>https://0702ccc.github.io/tags/text/</link>
-        <pubDate>Sat, 09 Mar 2019 00:00:00 +0000</pubDate>
-        
-        <guid>https://0702ccc.github.io/tags/text/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Emoji</title>
-        <link>https://0702ccc.github.io/tags/emoji/</link>
-        <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
-        
-        <guid>https://0702ccc.github.io/tags/emoji/</guid>
         <description></description>
         </item>
         

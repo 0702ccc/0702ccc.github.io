@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='分布式系统课程期末设计项目'>
+<title>极简分布式文件系统设计</title>
+
+<link rel='canonical' href='https://0702ccc.github.io/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/'>
+
+<link rel="stylesheet" href="/scss/style.min.7604f93ce855d4112bbee8e89219d791facbb11c29104ea654b864ad86ae383d.css"><meta property='og:title' content='极简分布式文件系统设计'>
+<meta property='og:description' content='分布式系统课程期末设计项目'>
+<meta property='og:url' content='https://0702ccc.github.io/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/'>
+<meta property='og:site_name' content='Lijt&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Project' /><meta property='article:tag' content='Distributed' /><meta property='article:published_time' content='2024-03-04T01:02:05&#43;08:00'/><meta property='article:modified_time' content='2024-03-04T01:02:05&#43;08:00'/><meta property='og:image' content='https://0702ccc.github.io/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/1.png' />
+<meta name="twitter:title" content="极简分布式文件系统设计">
+<meta name="twitter:description" content="分布式系统课程期末设计项目"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://0702ccc.github.io/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/1.png' />
+    <link rel="shortcut icon" href="favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/pochacco_hud9dfcf4e5f3233a5c93c70b89a8a263d_52372_300x0_resize_q75_box.jpg" width="300"
+                            height="301" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">☕</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Lijt&#39;s Blog</a></h1>
+            <h2 class="site-description">Learn more.</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/0702ccc'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='mailto:lijt73@mail2.sysu.edu.cn'
+                        target="_blank"
+                        title="Email"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.zhihu.com/people/lajoya-47'
+                        target="_blank"
+                        title="Zhihu"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-zhihu" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6h6v12h-2l-2 2l-1 -2h-1z" /><path d="M4 12h6.5" /><path d="M10.5 6h-5" /><path d="M6 4c-.5 2.5 -1.5 3.5 -2.5 4.5" /><path d="M8 6v7c0 4.5 -2 5.5 -4 7" /><path d="M11 18l-3 -5" /></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://val.qq.com/main.html'
+                        target="_blank"
+                        title="Valorant"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-valorant" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.5 14h4.5l2 -2v-6z" /><path d="M9 19h5l-11 -13v6z" /></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                
+                    <li id="i18n-switch">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                        <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                            
+                                <option value="https://0702ccc.github.io/" selected>English</option>
+                            
+                                <option value="https://0702ccc.github.io/zh-cn/" >中文</option>
+                            
+                        </select>
+                    </li>
+                
+            
+
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一项目简介">一、项目简介</a></li>
+    <li><a href="#二文件结构">二、文件结构</a></li>
+    <li><a href="#三应用到的分布式系统概念以及原理等如下所示">三、应用到的分布式系统概念以及原理等如下所示：</a></li>
+    <li><a href="#四实现细节">四、实现细节</a>
+      <ol>
+        <li><a href="#实现功能">实现功能：</a></li>
+        <li><a href="#1-grpc实现方式">1. grpc实现方式</a></li>
+        <li><a href="#2-文件操作">2. 文件操作：</a></li>
+        <li><a href="#3-缓存与缓存更新机制">3. 缓存与缓存更新机制：</a></li>
+        <li><a href="#4-多副本之间一致性">4. 多副本之间一致性：</a></li>
+        <li><a href="#5-多用户并行读写锁机制">5. 多用户并行读写(锁机制)：</a></li>
+        <li><a href="#6-访问权限控制">6. 访问权限控制：</a></li>
+        <li><a href="#7-namenode容错性">7. NameNode容错性：</a></li>
+        <li><a href="#8-心跳机制">8. 心跳机制：</a></li>
+      </ol>
+    </li>
+    <li><a href="#四结果展示">四、结果展示</a></li>
+    <li><a href="#五实验中遇到的问题">五、实验中遇到的问题</a></li>
+    <li><a href="#六实验总结">六、实验总结</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">
+                <img src="/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/1_huea26b99c59dafc76270ad4874d154cbc_1376934_800x0_resize_box_3.png"
+                        srcset="/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/1_huea26b99c59dafc76270ad4874d154cbc_1376934_800x0_resize_box_3.png 800w, /p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/1_huea26b99c59dafc76270ad4874d154cbc_1376934_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="465" 
+                        loading="lazy"
+                        alt="Featured image of post 极简分布式文件系统设计" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E6%9E%81%E7%AE%80%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">极简分布式文件系统设计</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            分布式系统课程期末设计项目
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    
+    <footer class="article-time">
+        
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 04, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17.5 10.5l1 -1a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4h4l2 -2" /><path d="M13.5 6.5l4 4" /><path d="M17.8 20.817l-2.172 1.138a.392 .392 0 0 1 -.568 -.41l.415 -2.411l-1.757 -1.707a.389 .389 0 0 1 .217 -.665l2.428 -.352l1.086 -2.193a.392 .392 0 0 1 .702 0l1.086 2.193l2.428 .352a.39 .39 0 0 1 .217 .665l-1.757 1.707l.414 2.41a.39 .39 0 0 1 -.567 .411l-2.172 -1.138z" /></svg>
+                <time class="article-words">
+                    1510 words
+                </time>
+            </div>
+        
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 align=center>分布式系统大作业——分布式文件系统</h1>
+<h2 id="一项目简介">一、项目简介</h2>
+<p>该项目基于作者本人选修的<strong>分布式系统课程的期末实验项目</strong>，实现了简化版的HDFS。在满足分布式系统设计的基本要求上，主要优势为系统有重要的可伸缩性，单个主服务器可以控制数百个块服务器： 。</p>
+<p><strong>Hadoop Distributed File System</strong>（HDFS）是一个用于存储大规模数据的分布式文件系统，设计用于运行在大型集群上。它被设计为容错性高、可靠性强的系统，适用于运行在廉价硬件上。HDFS采用主从架构，其中包括一个主节点（NameNode）负责管理文件系统的命名空间和客户端的访问，并维护文件系统的元数据，以及多个从节点（DataNode）负责存储实际的数据块。文件被分割成多个数据块并分布存储在不同的DataNode上，从而实现了数据的高可靠性和可扩展性。HDFS被广泛应用于大数据处理和分析领域，成为了Apache Hadoop生态系统中的核心组件之一。</p>
+<p>本项目按照HDFS的基本架构进行设计，采用client-server架构，并实现了<strong>文件系统的基本的访问、打开、删除、缓存等功能，同时具有一致性、支持多用户特点</strong>。 在设计过程中体现在分布式课程中学习到的一些机制或者思想，例如<strong>缓存更新机制、访问控制机制、并行扩展等</strong>。并适当的进行了一些简化，例如：将HDFS中将文件进行分片存储的实现简化为对文件不进行分片，整体存储。</p>
+<h2 id="二文件结构">二、文件结构</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">My_HDFS
+</span></span><span class="line"><span class="cl">├─ namenode               // 命名节点
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">├─ datanode               // 数据节点
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">├─ secondarynamenode      // 命名节点备份存储
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">├─ client                 // 客户端
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">├─ file_system.proto      // Protocol Buffers定义文件
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">├─ file_system_pb2        // grpc产生文件
+</span></span><span class="line"><span class="cl">│  
+</span></span><span class="line"><span class="cl">└─ file_system_pb2_grpc   // grpc产生文件
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p><strong>命名节点（Namenode）</strong>：负责维护文件系统的命名空间和元数据信息，包括文件的路径、权限、所有者等、负责处理客户端的元数据操作请求，例如创建文件、删除文件、获取文件元数据等，并通过心跳机制与DataNode通信，维护DataNode的可用性信息。</p>
+</li>
+<li>
+<p><strong>命名节点备份存储（SecondaryNamenode）</strong>：负责与NameNode交互，定时将下载NameNode中的元数据并在本地进行持久化存储，当NameNode需要恢复时，可从SecondaryNamenode下载文件元数据。</p>
+</li>
+<li>
+<p><strong>数据节点（Datanode）</strong>：负责实际存储文件数据，每个DataNode都维护一部分文件的数据。处理客户端的数据操作请求，例如读取文件数据、写入文件数据。支持数据复制，将文件数据在多个DataNode之间进行复制，以实现分区容错性。</p>
+</li>
+<li>
+<p><strong>客户端（Client）</strong>：提供用户接口，使用户能够通过命令行与分布式文件系统进行交互。实现了一些常用文件系统操作，如创建目录、进入目录、回退目录、创建文件、写入数据、读取数据、删除文件等。</p>
+</li>
+<li>
+<p><strong>Protocol Buffers定义文件</strong>：包含用于定义消息结构、字段和其他相关信息的 ProtoBuf 语法。</p>
+</li>
+</ol>
+<h2 id="三应用到的分布式系统概念以及原理等如下所示">三、应用到的分布式系统概念以及原理等如下所示：</h2>
+<ol>
+<li><strong>分布式系统</strong>：分布式文件系统是建立在多个节点上的文件系统，节点之间协同工作以提供高性能、高可用性和可伸缩性。分布式系统致力于通过将计算任务分配到多个计算机上来提高系统性能和容错性。</li>
+<li><strong>通信机制</strong>：通信是分布式系统中的基础，涉及到节点之间的消息传递。在本次项目实现中使用了gRPC作为通信框架，实现了高效的远程过程调用，同时采用了 Protocol Buffers 进行数据序列化。</li>
+<li><strong>线程</strong>：系统节点中使用线程的方式运行一些定期函数，例如发送心跳信息、清理过期节点等，使用多线程的方式可以避免陷入引起中断，造成性能下降。</li>
+<li><strong>容错性</strong>：分布式系统要具备容错性，即使在节点故障的情况下仍能够继续提供服务。实现中通过数据节点中数据的多次复制（副本机制）来保障系统在节点故障时的可用性。此外，通过DataNode定期向NameNode发送心跳消息，以确保各个节点的正常运行状态，有助于及时发现并处理节点故障，提高了系统的容错性。容错性的实现还包含了启动Secondnary NameNode对主NameNode的文件元数据进行备份，实现持久化存储，从而使得主节点能够从错误中正确恢复。</li>
+<li><strong>两阶段提交协议</strong>：使用两阶段提交协议，将数据节点分为主节点与次节点，保证写入操作的对于所有存储的数据节点通信时一致，从而保证数据存储的一致性。</li>
+<li><strong>一致性</strong>：文件系统需要保证一致性，即多个节点对于相同数据的访问要保持一致。本次项目中，应用了瞬时一致性，多个数据节点中的修改时同时发生的。</li>
+<li><strong>内容分发</strong>：文件系统中保证服务器与客户端缓存一致时，采用了客户端基于Pull的更新方式，这样就无需再服务器端保存有缓存的客户端，从而提升服务器的性能。</li>
+<li><strong>并发控制</strong>：并发控制是确保多个并发操作不会导致数据不一致的机制，引入了文件锁定机制，以确保在某一时刻只有一个客户端能够修改文件</li>
+<li><strong>安全性</strong>：安全性是分布式系统中至关重要的一个方面，涉及到用户身份验证、访问控制等问题。本次项目中中考虑了管理员、文件的所有者、读写权限等概念，建立了POSIX权限模型以确保系统的安全性。</li>
+</ol>
+<h2 id="四实现细节">四、实现细节</h2>
+<p>实现的分布式文件系统体系结构流程图大致如下所示，箭头指向代表数据流动方向：</p>
+<img src="D:\大学学习资料\大三上\分布式\21307184李俊陶大作业+作业6\DFS\image\1.png" alt="image" height="400px">  
+<h3 id="实现功能">实现功能：</h3>
+<ul>
+<li><strong>使用grpc在不同节点之间进行通信</strong></li>
+<li><strong>具有常用的文件操作</strong>，包括：创建删除目录、进入以及后退目录、列出目录下文件、创建文件、打开文件、删除文件、写入数据、读取数据、对文件设置权限。</li>
+<li><strong>文件系统的客户端具有缓存功能</strong>，文件信息首先在本地存储搜索，若未搜索到再去请求服务器，同时附加实现了缓存更新算法</li>
+<li><strong>数据的可⽤性高</strong>，数据在不同的物理机器上创建了多个副本，且多个副本之间能够保持瞬时⼀致性。</li>
+<li><strong>支持多⽤户即多个客户端</strong>，并行读写文件（锁的粒度为文件大小，读写锁能够支持并发读取、独占修改）</li>
+<li><strong>访问权限控制</strong>，将用户角色区分为管理员与普通用户，管理员可以设置所有文件的读写权限，文件所有者可以设置对应文件的读写权限，参照posix权限模型实现。</li>
+</ul>
+<p><strong>因为源代码实现内容较多（包含一些错误输出信息），因此在下面具体展示中节选重要代码进行展示，详细代码以及注释可以文末代码仓库中的源代码部分</strong></p>
+<h3 id="1-grpc实现方式">1. grpc实现方式</h3>
+<ul>
+<li>在文件 file_system.proto 中定义了服务接口、消息类型以及服务方法</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">service FileSystemService {
+</span></span><span class="line"><span class="cl">    // File metadata management
+</span></span><span class="line"><span class="cl">    rpc CreateFile(FileRequest) returns (FileResponse);
+</span></span><span class="line"><span class="cl">    rpc DeleteFile(FileRequest) returns (FileResponse);
+</span></span><span class="line"><span class="cl">    rpc RenameFile(RenameRequest) returns (FileResponse);
+</span></span><span class="line"><span class="cl">    rpc GetFileMetadata(FileRequest) returns (FileMetadataResponse);
+</span></span><span class="line"><span class="cl">    // More service
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">message FileRequest {
+</span></span><span class="line"><span class="cl">    string file_path = 1;
+</span></span><span class="line"><span class="cl">    string owner = 2;
+</span></span><span class="line"><span class="cl">    string permissions = 3;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">// More message
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>使用 grpc.server创建了gRPC服务器，并将服务器实例添加为服务的实现，将服务器绑定到指定的端口，然后通过启动服务器，使其开始监听gRPC请求。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">name_node</span> <span class="o">=</span> <span class="n">NameNode</span><span class="p">()</span>  <span class="c1"># 创建一个 NameNode 实例</span>
+</span></span><span class="line"><span class="cl"><span class="n">server</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">server</span><span class="p">(</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">add_FileSystemServiceServicer_to_server</span><span class="p">(</span><span class="n">name_node</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">server</span><span class="o">.</span><span class="n">add_insecure_port</span><span class="p">(</span><span class="s1">&#39;[::]:50051&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>在客户端中，创建gRPC客户端通道，用于与服务器进行通信。
+通过调用stub对象的方法（如read_data），实现了对远程gRPC服务的调用。这些调用包含了传递的消息参数，通过Protocol Buffers序列化和反序列化。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">data_node_channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">selected_data_node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">data_node_stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">data_node_channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">data_node_response</span> <span class="o">=</span> <span class="n">data_node_stub</span><span class="o">.</span><span class="n">ReadData</span><span class="p">(</span><span class="n">file_system_pb2</span><span class="o">.</span><span class="n">DataRequest</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span><span class="n">offset</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">)))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-文件操作">2. 文件操作：</h3>
+<ul>
+<li>客户端交互页面：<br>
+将终端通过文本提示用户输入，用户能够查看到当前所在目录，并通过help命令查看文件系统所支持的命令格式。将用户输入的命令进行合理划分之后，交给具体的函数实现各个功能。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&#34;help&#34;</span><span class="p">:</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">command</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&#34;create_file&#34;</span><span class="p">):</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">command</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&#34;get_m&#34;</span><span class="p">):</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span><span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>创建目录、进入目录、后退目录、列出目录下文件：<br>
+<strong>目录数据均记录在namenode当中</strong>，在本次项目中使用树状结构对目录信息进行记录（模拟真实情况中数据存储在namenode节点的内存中），实现树状结构需要定义类以及一些类方法（更多是数据结构的知识在此不详细展开）。<br>
+客户端根据用户的命令构建相应的gRPC请求对象，并通过gRPC连接调用NameNode提供的相应接口，传递目录路径、新目录的名称或其他相关信息。<br>
+NameNode 接收到请求后，根据请求的类型执行相应的目录操作，比如创建目录、列出目录内容、改变当前工作目录等，涉及到在文件系统的元数据中更新目录结构的信息，并且在执行结束之后响应客户端执行结果。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">MakeDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>  <span class="c1"># 创建目录</span>
+</span></span><span class="line"><span class="cl">    <span class="n">directory</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">directory</span>
+</span></span><span class="line"><span class="cl">    <span class="n">new_directory</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">new_directory</span>
+</span></span><span class="line"><span class="cl">    <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">traverse_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">parent_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">parent_node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">new_directory</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Directory created successfully.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Parent directory not found.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">ListFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span> <span class="c1"># 列出目录</span>
+</span></span><span class="line"><span class="cl">    <span class="n">directory</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">directory</span>
+</span></span><span class="line"><span class="cl">    <span class="n">directory_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">traverse_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">directory_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">files</span> <span class="o">=</span> <span class="n">directory_node</span><span class="o">.</span><span class="n">list_children</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileListResponse</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileListResponse</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&#34;cd..&#34;</span><span class="p">:</span> <span class="c1"># 回退目录</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">current_directory</span> <span class="o">=</span> <span class="s2">&#34;/&#34;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_directory</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;/&#34;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">command</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&#34;cd&#34;</span><span class="p">):</span>  <span class="c1"># 进入目录</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_</span><span class="p">,</span> <span class="n">directory</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">current_directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">directory</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>创建文件：
+客户端通过gRPC连接调用NameNode提供的相应接口，传递文件路径、拥有者、权限信息。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">CreateFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">file_path</span>
+</span></span><span class="line"><span class="cl">    <span class="n">owner</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">owner</span>
+</span></span><span class="line"><span class="cl">    <span class="n">permissions</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">permissions</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">:</span>  <span class="c1"># 如果该文件已经存在</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;File already exists.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 获取文件所在的目录</span>
+</span></span><span class="line"><span class="cl">    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">traverse_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">parent_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># 更新目录结构</span>
+</span></span><span class="line"><span class="cl">        <span class="n">parent_node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileMetadata</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span> <span class="n">permissions</span><span class="o">=</span><span class="n">permissions</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;File &#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&#39; created successfully.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;Directory &#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&#39; not found.&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>删除文件、重命名文件：
+操作过程与创建文件类似，只需要修改namenode中用于管理文件的数据结构即可，非本次项目技术重点(故省略)</p>
+</li>
+<li>
+<p>打开文件：<br>
+客户端调用函数get_lock获得对于需要打开文件的读者锁，通过gRPC连接调用NameNode提供的相应接口，传递文件路径、用户，NameNode判断是否有权限打开文件并返回结果，详细实现见下文的锁机制。(打开文件之后可以执行写入、读取、关闭三个操作)</p>
+</li>
+<li>
+<p>写入数据<br>
+<img src="D:\大学学习资料\大三上\分布式\21307184李俊陶大作业+作业6\DFS\image\3.png" alt="image" height="400px"></p>
+<ul>
+<li>客户端首先将文件的最新版本缓存到本地中，然后在本地缓存中进行写并将缓存的dirty位置位，将文件版本+1，随后在关闭文件时，若文件为dirty则进行flush。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">write_file_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 首先更新缓存中的内容，确保是在最新数据中写入</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">read_file_content</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="o">...</span><span class="c1"># 修改数据</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">][</span><span class="s2">&#34;dirty&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1">#设置脏位</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">flush_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">][</span><span class="s2">&#34;dirty&#34;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">          <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">][</span><span class="s2">&#34;version&#34;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 获取 DataNode 地址</span>
+</span></span><span class="line"><span class="cl">      <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_node_stub</span><span class="o">.</span><span class="n">WriteFile</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileRequest</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">data_node_addresses</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">data_node_addresses</span>
+</span></span><span class="line"><span class="cl">          <span class="n">selected_data_node</span> <span class="o">=</span> <span class="n">data_node_addresses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+</span></span><span class="line"><span class="cl">          <span class="c1"># 建立选定主节点</span>
+</span></span><span class="line"><span class="cl">          <span class="n">data_node_channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">selected_data_node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">data_node_stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">data_node_channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="c1"># 刷写缓存中的数据到 DataNode</span>
+</span></span><span class="line"><span class="cl">          <span class="n">data_node_response</span> <span class="o">=</span> <span class="n">data_node_stub</span><span class="o">.</span><span class="n">WriteData</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">              <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">DataRequest_main</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">][</span><span class="s2">&#34;content&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">nodes</span><span class="o">=</span><span class="n">data_node_addresses</span>
+</span></span><span class="line"><span class="cl">              <span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="o">...</span><span class="c1"># 一些输出信息省略</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>客户端通过gRPC连接调用NameNode提供的相应接口，传递文件路径、用户信息。NameNode接受请求，<strong>判断用户是否具有写入文件的权限</strong>。满足权限，若第一次写入则返回多个随机的DataNode地址(<strong>可以使用一些负载均衡算法</strong>)；若是后续修改则返回存有文件的DataNode地址。客户端从返回的地址中，选择主DataNode节点进行连接并传输需要写入的文件数据。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">WriteFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="n">file_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">file_path</span>
+</span></span><span class="line"><span class="cl">      <span class="n">num_replicas</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 假设每个数据块有3个副本</span>
+</span></span><span class="line"><span class="cl">      <span class="o">...</span> <span class="c1"># 一些必要目录判断（重复多次了）</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 文件已存在，返回DataNode地址</span>
+</span></span><span class="line"><span class="cl">      <span class="n">data_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ChooseDataNodes</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">num_replicas</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">DataNodeListResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_node_addresses</span><span class="o">=</span><span class="n">data_nodes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">ClientWriteComplete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="o">...</span><span class="c1"># 处理客户端写入完成的消息</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 更新元数据</span>
+</span></span><span class="line"><span class="cl">      <span class="n">new_metadata</span> <span class="o">=</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileMetadata</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">data_node_addresses</span><span class="o">=</span><span class="n">data_node_addresses</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">permissions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span><span class="o">.</span><span class="n">permissions</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_metadata</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Write complete message processed.&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>主DataNode节点收到客户端请求后，<strong>使用两阶段提交协议保证写入的原子性</strong>。主DataNode节点向多个次节点发送Vote-request信息，次节点判断之后根据自身情况返回Vote-commit或者Vote-abort信息，主节点统计返回信息并作出最终决定，发送Global-commit或者Global-abort给次节点，所有节点对于数据作出相同响应。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">WriteData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 获取主节点和次节点列表</span>
+</span></span><span class="line"><span class="cl">      <span class="n">main_node</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">secondary_nodes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 阶段一：向所有次节点发送Prepare请求</span>
+</span></span><span class="line"><span class="cl">      <span class="n">prepare_responses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="n">secondary_node</span> <span class="ow">in</span> <span class="n">secondary_nodes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">vote_request</span> <span class="o">=</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileRequest</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="k">with</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">secondary_node</span><span class="p">)</span> <span class="k">as</span> <span class="n">channel</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">              <span class="n">prepare_response</span> <span class="o">=</span> <span class="n">stub</span><span class="o">.</span><span class="n">Prepare</span><span class="p">(</span><span class="n">vote_request</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">              <span class="n">prepare_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prepare_response</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">success</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">prepare_responses</span><span class="p">):</span> <span class="c1"># 检查所有Prepare响应</span>
+</span></span><span class="line"><span class="cl">          <span class="c1"># 若所有相应均为Vote-Commit 阶段二：向所有次节点发送Global-Commit</span>
+</span></span><span class="line"><span class="cl">          <span class="k">for</span> <span class="n">secondary_node</span> <span class="ow">in</span> <span class="n">secondary_nodes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">              <span class="k">with</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">secondary_node</span><span class="p">)</span> <span class="k">as</span> <span class="n">channel</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">commit_response</span> <span class="o">=</span> <span class="n">stub</span><span class="o">.</span><span class="n">Commit</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="o">...</span><span class="c1"># 更新数据存储</span>
+</span></span><span class="line"><span class="cl">          <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;write completed&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="o">...</span><span class="c1"># 如果有任何Prepare请求失败，阶段二：向所有次节点发送Global-Abort</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">Prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 进行简化，都返回可以Commit 实际文件系统需要要进行判断</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;Vote_Commit&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">Commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># 更新数据存储</span>
+</span></span><span class="line"><span class="cl">      <span class="n">current_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_storage</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">updated_data</span> <span class="o">=</span> <span class="n">current_data</span><span class="p">[:</span><span class="n">offset</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span> <span class="o">+</span> <span class="n">current_data</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):]</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">data_storage</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_data</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Copy successful&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>读取数据<br>
+<img src="D:\大学学习资料\大三上\分布式\21307184李俊陶大作业+作业6\DFS\image\2.png" alt="image" height="300px"><br>
+客户端首先在缓存中寻找是否有对应文件内容，并通过与NameNode通信获取该文件的最新版本号。若缓存中是最新版本，则直接读取缓存，若不存在缓存或缓存过期则运行读取的过程。</p>
+<p>客户端通过gRPC连接调用NameNode提供的相应接口，传递文件路径、用户信息。NameNode接受请求，判断用户是否具有读取文件的权限，若有则返回多个存储有该文件内容的DataNode节点地址。客户端从返回的地址多个地址中，选择最合适的DataNode节点进行连接并读取文件数据（本次实验中使用的是随机选择，具体实践中应考虑网络耗费等）</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">read_file_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 尝试从缓存中获取文件内容</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cached_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_node_stub</span><span class="o">.</span><span class="n">GetFileVersion</span><span class="p">(</span><span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileRequest</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_version</span> <span class="o">=</span> <span class="n">file_response</span><span class="o">.</span><span class="n">version</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">cached_entry</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cached_content</span> <span class="o">=</span> <span class="n">cached_entry</span><span class="p">[</span><span class="s2">&#34;content&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cached_version</span> <span class="o">=</span> <span class="n">cached_entry</span><span class="p">[</span><span class="s2">&#34;version&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">cached_version</span> <span class="o">&gt;=</span> <span class="n">file_version</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">cached_content</span><span class="p">[</span><span class="n">offset</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">file_version</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;content&#34;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="s2">&#34;version&#34;</span><span class="p">:</span> <span class="n">file_version</span><span class="p">,</span> <span class="s2">&#34;dirty&#34;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 如果缓存中不存在，从 DataNode 获取文件内容</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_node_stub</span><span class="o">.</span><span class="n">GetDatanode</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileRequest</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data_node_addresses</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">data_node_addresses</span>
+</span></span><span class="line"><span class="cl">        <span class="n">selected_data_node</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">data_node_addresses</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data_node_channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">selected_data_node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data_node_stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">data_node_channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data_node_response</span> <span class="o">=</span> <span class="n">data_node_stub</span><span class="o">.</span><span class="n">ReadData</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">DataRequest</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">offset</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 将获取到的文件内容放入缓存</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">file_cache</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;content&#34;</span><span class="p">:</span> <span class="n">data_node_response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="s2">&#34;version&#34;</span><span class="p">:</span> <span class="n">file_version</span><span class="p">,</span> <span class="s2">&#34;dirty&#34;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">data_node_response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">offset</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">GetDatanode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>  <span class="c1"># NameNode返回存有对应文件的数据节点</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span> <span class="c1">#实现较简单 具体代码可以看源代码模块</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">GetFileVersion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span> <span class="c1"># NameNode返回存有对应文件的版本号</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span> <span class="c1">#实现较简单 具体代码可以看源代码模块</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">ReadData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span><span class="err">：</span><span class="c1">#DataNode返回文件具体内容</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span> <span class="c1">#实现较简单 具体代码可以看源代码模块</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>关闭文件<br>
+与打开文件类似，客户端调用函数unlock释放对应文件的读写锁，如果缓存中的文件为脏数据则进行flush。通过gRPC连接调用NameNode提供的相应接口，传递文件路径、用户，NameNode对文件解锁并返回结果，详细实现见下文的锁机制。</li>
+</ul>
+<h3 id="3-缓存与缓存更新机制">3. 缓存与缓存更新机制：</h3>
+<p>在本次项目中实现了缓存以及缓存更新，客户端读写一个文件时都先从本地缓存(使用字典来模拟真实客户端的内存)中寻找是否有相应的文件，若没有则再去服务器中读取。与此同时，<strong>客户端会向NameNode节点请求对应文件的最新版本号，用pull的策略来保证服务器与本地缓存的一致性</strong>。</p>
+<p>采用了<code>write-back</code>(回写的缓存更新策略)，为每个本地缓存中文件维护一个<code>dirty</code>位，若进行了写入操作则置<code>dirty</code>位并在最终关闭文件的时候向服务器写回(flush)。<code>Write-back</code> 缓存写入策略的主要优点包括提高性能、减少主存带宽需求、累积写入以减少写回次数，并且通过版本号以及锁机制保证一致性。<br>
+代码在上文<code>write_data</code>与<code>read_data</code>操作中有过涉及，因此不再赘述。</p>
+<h3 id="4-多副本之间一致性">4. 多副本之间一致性：</h3>
+<p>为了保证数据的可用性与文件系统的性能，数据创建了多个副本，且运行多个DataNode程序模拟多个机器。读取数据时，选择一个服务器的副本进行读取；写入数据时，<strong>采用瞬时一致性</strong>，客户端首先与NameNode通信获取写入DataNode地址，然后与主DataNode通信并传递写入数据。主DataNode与次DataNode之间采用<strong>二阶段提交协议保证写入的一致性</strong>（具体过程见上文写入数据操作）。两阶段提交协议保证了分布式系统中的事务一致性，即所有节点都要么提交事务，要么中止事务。</p>
+<p>有关文件的元数据信息存储在NameNode当中，并且为了恢复，定时将数据信息传递给Secondary NameNode进行持久化存储，在此过程中保证NameNode中元数据的一致性。</p>
+<h3 id="5-多用户并行读写锁机制">5. 多用户并行读写(锁机制)：</h3>
+<p>文件系统支持多用户并发访问，采用读写锁的机制来保证不会冲突，读写锁以元数据的形式存储在NameNode节点中。读写锁能够读操作频繁的情况下允许多个线程同时读取数据，但在写操作进行时禁止读取和其他写操作。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">LockFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span><span class="c1"># 读取</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_locks</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lock</span><span class="o">.</span><span class="n">lock_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># 更新锁的时间</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">lock_type</span> <span class="o">==</span> <span class="s2">&#34;read&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">...</span><span class="c1"># 权限检查</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="o">==</span> <span class="n">user</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lock</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;File opened successfully with </span><span class="si">{</span><span class="n">lock_type</span><span class="si">}</span><span class="s2"> lock.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>                                                    <span class="n">message</span><span class="o">=</span><span class="s2">&#34;File is writen by another user,can not read.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="n">lock_type</span> <span class="o">==</span> <span class="s2">&#34;write&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">...</span><span class="c1"># 权限检查</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">lock</span><span class="o">.</span><span class="n">readers</span> <span class="o">==</span> <span class="p">{</span><span class="n">user</span><span class="p">}</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">lock</span><span class="o">.</span><span class="n">readers</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="o">==</span> <span class="n">user</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">user</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&#34;File opened successfully with </span><span class="si">{</span><span class="n">lock_type</span><span class="si">}</span><span class="s2"> lock.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">message</span><span class="o">=</span><span class="s2">&#34;File is read by other user, can not write.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;File is locked by another user.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">unlock_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_locks</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_locks</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">lock</span><span class="o">.</span><span class="n">readers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lock</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="o">==</span> <span class="n">user</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lock</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">False</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>设置文件锁超时机制：有助于避免死锁情况的发生，确保即使在异常情况下也能够及时释放锁资源。其次，超时机制提高了系统的可用性，防止长时间持有锁资源导致系统阻塞。第三，它促使资源的及时释放，防止长时间占用锁资源，提高系统的资源利用率。此外，文件锁超时机制还有助于降低锁等待时间，提高系统的响应性能，并能够在意外场景下保持系统的稳定性。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 启动定期清理过期锁线程</span>
+</span></span><span class="line"><span class="cl"><span class="n">lock_cleaning_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">name_node</span><span class="o">.</span><span class="n">clean_expired_locks</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lock_cleaning_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">clean_expired_locks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># 每隔5秒清理一次</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">lock</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_locks</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">lock</span><span class="o">.</span><span class="n">lock_time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock_timeout</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">unlock_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">lock</span><span class="o">.</span><span class="n">writer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">lock</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">unlock_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">reader</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="6-访问权限控制">6. 访问权限控制：</h3>
+<p><strong>本次项目中参考POSIX权限模型</strong>，将文件和目录权限分为三个基本类别：所有者、组和其他用户。每个类别都有读（Read）、写（Write）和执行（Execute）三种权限，分别用数字表示为100、010和001。通过三个数字的组合，分别对应所有者、组和其他用户的权限，形成一个三位数的权限表示。通过chmod命令可以动态地调整文件和目录的权限，保障系统安全性和数据隐私。在本次实验中将Client1设置为管理员，即可以对所有文件更改权限；当用户在创建文件时会将自己设置为文件的拥有者，可以对拥有的文件更改权限。这些数据保存在NameNode该文件的对应元数据中。</p>
+<p>客户端通过gRPC连接调NameNode的<code>ChangePermissions</code>接口，传递文件路径、客户端身份标识和新的权限信息。(grpc过程与之前一致，因此不展示详细代码) NameNode 接收到请求后，进行权限校验，确保请求的用户有足够的权限来更改文件的权限。若权限校验通过，NameNode 就会执行更改权限的操作并相应客户端</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">ChangePermissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">file_path</span>
+</span></span><span class="line"><span class="cl">    <span class="n">owner</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">owner</span>
+</span></span><span class="line"><span class="cl">    <span class="n">new_permissions</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">permissions</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 根据 file_path 获取文件元数据并需要修改文件权限</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_metadata</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;File not found.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">owner</span> <span class="o">==</span> <span class="s2">&#34;1&#34;</span> <span class="ow">or</span> <span class="n">owner</span> <span class="o">==</span> <span class="n">file_metadata</span><span class="o">.</span><span class="n">owner</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">file_metadata</span><span class="o">.</span><span class="n">permissions</span> <span class="o">=</span> <span class="n">new_permissions</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Permissions changed successfully.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;Permissions denied.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">AddGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 根据 file_path 获取文件元数据</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 在这里根据实际需要修改文件权限</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_metadata</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileResponse</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&#34;User added successfully.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">CheckPermission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span> <span class="c1"># 将字符串类型的权限转化为二进制</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_metadata</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">permission</span> <span class="o">=</span> <span class="n">file_metadata</span><span class="o">.</span><span class="n">permissions</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">user</span> <span class="o">==</span> <span class="n">file_metadata</span><span class="o">.</span><span class="n">owner</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">binary_permission</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">permission</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">file_metadata</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">binary_permission</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">permission</span><span class="p">[</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">binary_permission</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">permission</span><span class="p">[</span><span class="mi">2</span><span class="p">]))[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">binary_permission</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="7-namenode容错性">7. NameNode容错性：</h3>
+<p>在本次项目中参照HDFS中的结构简化实现了Secondnary NameNode节点，持久化存储主节点中的文件元数据，用于故障修复。在HDFS中，Secondary NameNode的其主要目的是协助主要的NameNode执行检查点操作，以防止NameNode的元数据损坏或丢失，涉及合并编辑日志并创建新镜像等多个操作。本次项目中简化为，定期从NameNode中获取文件元数据并持久化存储，当NameNode发生故障丢生文件元数据时，可以从Secondnary NameNode获取并进行恢复。Secondary Namenode类采用写入文档模拟持久存储，主NameNode中在初始化时使用grpc调用读取备份文件元数据，关键函数如下所示：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">perform_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   <span class="c1"># 每隔一段时间执行checkpoint</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_node_stub</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileRequest</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_metadata_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">metadata</span><span class="o">.</span><span class="n">file_path</span><span class="p">:</span> <span class="n">metadata</span> <span class="k">for</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 模拟写入持久存储</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata_to_file</span><span class="p">(</span><span class="n">file_metadata_map</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">save_metadata_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata_map</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file_path</span><span class="p">,</span> <span class="s2">&#34;w&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">metadata_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">metadata</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">load_metadata_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">metadata_map</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file_path</span><span class="p">,</span> <span class="s2">&#34;r&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="n">file_path</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">metadata_hex</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">metadata</span> <span class="o">=</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">FileMetadata</span><span class="p">()</span><span class="o">.</span><span class="n">FromString</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">metadata_hex</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="n">metadata_map</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">metadata_map</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">PeriodicCheckpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   <span class="c1"># 每隔一段时间执行一次检查点</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>  
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">perform_checkpoint</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">GetMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>    <span class="c1">#通过grpc将元数据传递给主Namenode</span>
+</span></span><span class="line"><span class="cl">    <span class="n">metadata_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_metadata_from_file</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 返回 SecondaryNameNode 中保存的元数据信息</span>
+</span></span><span class="line"><span class="cl">    <span class="n">metadata_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">metadata_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">MetadataResponse</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="n">metadata_list</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 启动定期执行检查点的线程</span>
+</span></span><span class="line"><span class="cl">    <span class="n">checkpoint_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">secondary_name_node</span><span class="o">.</span><span class="n">PeriodicCheckpoint</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">checkpoint_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="8-心跳机制">8. 心跳机制：</h3>
+<p>通过gRPC通信，DataNode定期向NameNode发送心跳消息，其中包含DataNode的地址。NameNode接收心跳消息后，更新维护的<code>data_nodes</code>字典，记录各个DataNode最近一次的活跃时间戳。同时，NameNode通过定期清理线程，检测<code>data_nodes</code>字典中的时间戳，识别并清理长时间未发送心跳的DataNode，以维持文件系统的稳定性和可靠性。这一心跳机制有助于实时监测DataNode的状态，及时处理可能的故障或失效，从而提高整个分布式文件系统的鲁棒性。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 启动定期清理线程</span>
+</span></span><span class="line"><span class="cl"><span class="n">cleaning_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">name_node</span><span class="o">.</span><span class="n">clean_expired_data_nodes</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">cleaning_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Heartbeat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># 处理DataNode的心跳信息</span>
+</span></span><span class="line"><span class="cl">   <span class="n">data_node_address</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data_node_address</span>
+</span></span><span class="line"><span class="cl">   <span class="bp">self</span><span class="o">.</span><span class="n">data_nodes</span><span class="p">[</span><span class="n">data_node_address</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># 更新时间戳</span>
+</span></span><span class="line"><span class="cl">   <span class="k">return</span> <span class="n">file_system_pb2</span><span class="o">.</span><span class="n">HeartbeatResponse</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&#34;OK&#34;</span><span class="p">)</span>   <span class="c1"># 返回心跳响应</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">clean_expired_data_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># 定期清理过期的DataNode信息</span>
+</span></span><span class="line"><span class="cl">   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">       <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># 每隔60秒清理一次</span>
+</span></span><span class="line"><span class="cl">       <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">       <span class="n">expired_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">addr</span> <span class="k">for</span> <span class="n">addr</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+</span></span><span class="line"><span class="cl">                           <span class="n">current_time</span> <span class="o">-</span> <span class="n">timestamp</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">]</span>  <span class="c1"># 假设超过60秒没有心跳就认为过期</span>
+</span></span><span class="line"><span class="cl">       <span class="k">for</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">expired_nodes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">           <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_nodes</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 启动心跳发送进程</span>
+</span></span><span class="line"><span class="cl"><span class="n">heartbeat_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">data_node</span><span class="o">.</span><span class="n">send_heartbeat</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">heartbeat_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">send_heartbeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">       <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 定期发送心跳消息给NameNode</span>
+</span></span><span class="line"><span class="cl">       <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Sending heartbeat to NameNode&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">       <span class="k">with</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_node_address</span><span class="p">)</span> <span class="k">as</span> <span class="n">channel</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">           <span class="n">stub</span> <span class="o">=</span> <span class="n">file_system_pb2_grpc</span><span class="o">.</span><span class="n">FileSystemServiceStub</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">           <span class="n">response</span> <span class="o">=</span> <span class="n">stub</span><span class="o">.</span><span class="n">Heartbeat</span><span class="p">(</span><span class="n">file_system_pb2</span><span class="o">.</span><span class="n">HeartbeatRequest</span><span class="p">(</span><span class="n">data_node_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_node_address</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="四结果展示">四、结果展示</h2>
+<ol>
+<li>构造运行环境<br>
+下载安装成功依赖环境之后，运行Secondnary NameNode节点；运行NameNode服务器监听localhost:50051；运行五个DataNode服务器(每份文件共有三份副本，分别存在三个DataNode服务器中)，分别监听localhost:50052、localhost:50053、localhost:50054、localhost:50055、localhost:50056。启动三个客户端，Client1(管理员)、Client2、Client3。</li>
+<li>展示心跳机制<br>
+DataNode启动之后，与NameNode之间显示心跳信息。</li>
+<li>展示文件文件操作<br>
+Client1创建目录、文件，进入目录、回退目录、重命名文件、删除文件、打开文件<code>test</code>，写入数据<code>happy</code>并读取，最后关闭文件。</li>
+<li>展示多用户并发访问<br>
+Client2、Client3同时对之前写入的文件<code>test</code>进行读取，可以实现并发读取(<strong>读取的是不同副本，一致性的体现</strong>)；此时，Client2想要写入<code>test</code>，会失败(因为只支持独占写)；随后Client2与Client3均关闭文件，Clinet2再次打开并写入数据<code>new year</code>,此时Clinet3想要打开文件进行读写会失败，因为Client2获得了写锁。</li>
+<li>展示缓存一致性机制<br>
+在上面的步骤中，Client1会对<code>test</code>文件在本地形成缓存，但是随后Client2又修改文件内容；此时，Client1再次读取<code>test</code>文件，缓存能够命中但是发现过时，于是从服务器读取，从而保证一致性，读出数据为<code>happy new year</code>。</li>
+<li>展示权限模块<br>
+Client2创建文件，权限为711，即只有文件所有者可以进行读写，Client3无法进行读写。Client1修改权限为777，使得Client3可以读写(还有修改权限组成员的部分在此不展示)。</li>
+<li>容错性——NameNode恢复<br>
+运行过程中，重启NameNode程序，可以观察到仍能正确恢复到上一次检查点的状态，文件仍然存在。</li>
+</ol>
+<p>测试过程如上所示，<strong>运行结果与解释内容较为繁杂在此不做具体展示</strong>。</p>
+<h2 id="五实验中遇到的问题">五、实验中遇到的问题</h2>
+<p>在实验过程中，遇到了一些挑战和问题，主要包括：</p>
+<p>gRPC是一个高性能、开源和通用的远程过程调用（RPC）框架，熟练高效使用需要一定的学习成本。通过阅读官方文档和示例代码，以及查阅相关资料，逐步掌握了gRPC的基本原理和使用方法。将课程理论内容实践为项目中的一部分也存在着一些挑战，一致性、并发控制、容错性、安全性等等，这些分布式系统的特性在课程中有许多不同实现方式，选择适合本项目的实现方式并顺利实现需要一定的尝试与调整。通过深入理解内容并多次修改代码，最终达到了希望的效果。</p>
+<h2 id="六实验总结">六、实验总结</h2>
+<p>在该项目的完成过程中，需要考虑多个节点的协同工作，同时处理各种潜在的问题，如网络故障和硬件故障。系统的容错性、一致性和性能等方面都是需要仔细思考和权衡的问题。</p>
+<p>学习和使用gRPC是一个积极的体验。gRPC作为高效的通信框架，简化了节点间的远程过程调用，提高了系统的效率。尽管学习曲线较陡，但一旦掌握，它为分布式系统的通信提供了便利。除此之外，真正将课本中的理论内容实现过后，对于书中的概念原理等等都加深了认识。</p>
+<p>基于作者时间、知识与精力有限，本项目只是一个简化版的分布式文件系统。后续还有大量的工作可以进行完善，比如加入Paxos共识协议等等，本项目全部代码与报告展示已经开源于：</p>
+<p>[项目链接](<a class="link" href="https://github.com/0702ccc/LiteHDFS"  target="_blank" rel="noopener"
+    >0702ccc/LiteHDFS: Simplified Distributed File System (based on HDFS) (中山大学分布式系统期末项目) (github.com)</a>)</p>
+<p>如有错漏之处 敬请指正🤝</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/project/">Project</a>
+        
+            <a href="/tags/distributed/">Distributed</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="0702ccc/0702ccc.github.io"
+    data-repo-id="R_kgDOLZkHYw"
+    data-category="Announcements"
+    data-category-id="DIC_kwDOLZkHY84Cdoiv"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="0"
+    data-lang="en"
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('0');
+            } else {
+                setGiscusTheme('dark_dimmed');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Lijt&#39;s Blog
+        
+
+        
+            <br />
+            This site has been running steadily for <i class="fas fa-bell"></i> <a id="days">0</a> days
+        
+    
+        
+            <br/>
+            
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            
+            
+            Total
+            
+            4&nbsp;
+            articles
+            &nbsp|
+            Total
+            3.96k&nbsp;
+            words
+        
+        
+    </section>
+    
+    <section class="powerby">
+        
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.22.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 
+        
+    </section>
+
+    
+        <script>
+            var s1 = "2024-03-01";
+            s1 = new Date(s1.replace(/-/g, "/"));
+            s2 = new Date();
+            var days = s2.getTime() - s1.getTime();
+            var number_of_days = parseInt(days / (1000 * 60 * 60 * 24));
+            document.getElementById('days').innerHTML = number_of_days;
+        </script>
+    
+
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

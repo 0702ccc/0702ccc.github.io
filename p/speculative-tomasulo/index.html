@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='计算机体系结构期末项目——仿真Speculative Tomasulo算法'>
+<title>Speculative Tomasulo</title>
+
+<link rel='canonical' href='https://0702ccc.github.io/p/speculative-tomasulo/'>
+
+<link rel="stylesheet" href="/scss/style.min.7604f93ce855d4112bbee8e89219d791facbb11c29104ea654b864ad86ae383d.css"><meta property='og:title' content='Speculative Tomasulo'>
+<meta property='og:description' content='计算机体系结构期末项目——仿真Speculative Tomasulo算法'>
+<meta property='og:url' content='https://0702ccc.github.io/p/speculative-tomasulo/'>
+<meta property='og:site_name' content='Lijt&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Tomasulo' /><meta property='article:tag' content='Project' /><meta property='article:tag' content='Algorithm' /><meta property='article:published_time' content='2024-03-05T11:54:21&#43;08:00'/><meta property='article:modified_time' content='2024-03-05T11:54:21&#43;08:00'/><meta property='og:image' content='https://0702ccc.github.io/p/speculative-tomasulo/1.png' />
+<meta name="twitter:title" content="Speculative Tomasulo">
+<meta name="twitter:description" content="计算机体系结构期末项目——仿真Speculative Tomasulo算法"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://0702ccc.github.io/p/speculative-tomasulo/1.png' />
+    <link rel="shortcut icon" href="favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/pochacco_hud9dfcf4e5f3233a5c93c70b89a8a263d_52372_300x0_resize_q75_box.jpg" width="300"
+                            height="301" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">☕</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Lijt&#39;s Blog</a></h1>
+            <h2 class="site-description">Learn more.</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/0702ccc'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='mailto:lijt73@mail2.sysu.edu.cn'
+                        target="_blank"
+                        title="Email"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.zhihu.com/people/lajoya-47'
+                        target="_blank"
+                        title="Zhihu"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-zhihu" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6h6v12h-2l-2 2l-1 -2h-1z" /><path d="M4 12h6.5" /><path d="M10.5 6h-5" /><path d="M6 4c-.5 2.5 -1.5 3.5 -2.5 4.5" /><path d="M8 6v7c0 4.5 -2 5.5 -4 7" /><path d="M11 18l-3 -5" /></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://val.qq.com/main.html'
+                        target="_blank"
+                        title="Valorant"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-valorant" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.5 14h4.5l2 -2v-6z" /><path d="M9 19h5l-11 -13v6z" /></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                
+                    <li id="i18n-switch">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                        <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                            
+                                <option value="https://0702ccc.github.io/" selected>English</option>
+                            
+                                <option value="https://0702ccc.github.io/zh-cn/" >中文</option>
+                            
+                        </select>
+                    </li>
+                
+            
+
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一项目简介">一：项目简介</a></li>
+    <li><a href="#二第三节的附加问题">二：第三节的附加问题</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#1-tomasulo-算法相对于-scoreboard-算法的优点同时简述tomasulo-存在的缺点">1. Tomasulo 算法相对于 Scoreboard 算法的优点？同时简述Tomasulo 存在的缺点。</a></li>
+            <li><a href="#tomasulo算法相较于scoreboard算法的优点"><strong>Tomasulo算法相较于Scoreboard算法的优点</strong>:</a></li>
+            <li><a href="#tomasulo存在的缺点"><strong>Tomasulo存在的缺点</strong>：</a></li>
+            <li><a href="#2-简要介绍引入重排序改进-tomasulo-的原理">2. 简要介绍引入重排序改进 Tomasulo 的原理。</a></li>
+            <li><a href="#3-请分析重排序缓存的缺点">3. 请分析重排序缓存的缺点。</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#三项目结构">三：项目结构</a></li>
+    <li><a href="#四新增假设">四：新增假设</a></li>
+    <li><a href="#五仿真器实现思路与具体实现方法">五：仿真器实现思路与具体实现方法</a>
+      <ol>
+        <li><a href="#cpu-类"><code>CPU</code> 类</a></li>
+        <li><a href="#reorderbuffer-类"><code>ReorderBuffer</code> 类</a></li>
+        <li><a href="#bus-类"><code>Bus</code> 类</a></li>
+        <li><a href="#fpunit-类"><code>FPUnit</code> 类</a></li>
+        <li><a href="#memory-类"><code>Memory</code> 类</a></li>
+        <li><a href="#registergroup-类"><code>RegisterGroup</code> 类</a></li>
+        <li><a href="#辅助函数与main函数">辅助函数与<code>main</code>函数</a></li>
+      </ol>
+    </li>
+    <li><a href="#六优化项目点">六：优化项目点</a></li>
+    <li><a href="#七实验结果与分析">七：实验结果与分析</a></li>
+    <li><a href="#八实验总结">八：实验总结</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/speculative-tomasulo/">
+                <img src="/p/speculative-tomasulo/1_hu8f4d4075181c05f48ca1f692a88b4fca_770264_800x0_resize_box_3.png"
+                        srcset="/p/speculative-tomasulo/1_hu8f4d4075181c05f48ca1f692a88b4fca_770264_800x0_resize_box_3.png 800w, /p/speculative-tomasulo/1_hu8f4d4075181c05f48ca1f692a88b4fca_770264_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="482" 
+                        loading="lazy"
+                        alt="Featured image of post Speculative Tomasulo" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/speculative-tomasulo/">Speculative Tomasulo</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            计算机体系结构期末项目——仿真Speculative Tomasulo算法
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    
+    <footer class="article-time">
+        
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 05, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17.5 10.5l1 -1a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4h4l2 -2" /><path d="M13.5 6.5l4 4" /><path d="M17.8 20.817l-2.172 1.138a.392 .392 0 0 1 -.568 -.41l.415 -2.411l-1.757 -1.707a.389 .389 0 0 1 .217 -.665l2.428 -.352l1.086 -2.193a.392 .392 0 0 1 .702 0l1.086 2.193l2.428 .352a.39 .39 0 0 1 .217 .665l-1.757 1.707l.414 2.41a.39 .39 0 0 1 -.567 .411l-2.172 -1.138z" /></svg>
+                <time class="article-words">
+                    1662 words
+                </time>
+            </div>
+        
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="speculative-tomasulo-仿真算法">Speculative Tomasulo 仿真算法</h1>
+<h2 id="一项目简介">一：项目简介</h2>
+<p>该项目基于作者本人选修的<strong>计算机体系结构课程的期末实验项目</strong>，实现了Speculative Tomasulo 的仿真算法。</p>
+<p><strong>Speculative Tomasulo算法</strong>是一种用于动态调度指令执行的技术，通常应用于超标量处理器中。该算法通过指令发射、操作数就绪、执行、结果写回等步骤实现指令的乱序执行和并行处理。它利用Reservation Station跟踪指令的操作数可用性，并使用重命名表来处理异常和维护执行状态。通过分支预测和乱序执行，Speculative Tomasulo算法能够最大程度地提高处理器的性能和效率。</p>
+<p>本项目按照Speculative Tomasulo算法的基本原理进行设计，并参照课程教学中的合理假设，最后设计了多个测试输入指令序列并验证算法的正确性。</p>
+<h2 id="二第三节的附加问题">二：第三节的附加问题</h2>
+<h4 id="1-tomasulo-算法相对于-scoreboard-算法的优点同时简述tomasulo-存在的缺点">1. Tomasulo 算法相对于 Scoreboard 算法的优点？同时简述Tomasulo 存在的缺点。</h4>
+<h4 id="tomasulo算法相较于scoreboard算法的优点"><strong>Tomasulo算法相较于Scoreboard算法的优点</strong>:</h4>
+<ul>
+<li>Tomasulo引入保留站之后每条通路可以缓冲下多条指令，这样的做法平缓了指令发射的速度；</li>
+<li>通过寄存器重命名技术有效地解决了写后写数据冒险问题。在Tomasulo算法中，发生写后写冒险时总是把最新的值写进寄存器，旧值不写进寄存器，但是广播；</li>
+<li>通过寄存器重命名技术有效地解决了读后写数据冒险问题。Tomasulo算法里不会出现读后写冒险，因为指令一旦发射，指令就会把能读取的数据保存到保留站，源寄存器是否被改写就与该指令无关。</li>
+</ul>
+<h4 id="tomasulo存在的缺点"><strong>Tomasulo存在的缺点</strong>：</h4>
+<ul>
+<li>Tomasulo算法没办法处理中断，精确中断是指在指令和指令之间如果出现了中断/异常，那么处理器要确保中断/异常之前的所有指令都执行完毕，而中断/异常之后的所有指令都没有执行。Tomasulo并不支持指令按序提交，如果指令没办法按序提交，那就很难处理分支指令，如果有分支预测且分支预测失败的话，很难恢复处理器状态。</li>
+<li>Tomasulo算法如果在一个周期内同时多条指令就绪或者多条指令写回，受制于总线以及执行单元数量，无法实现完全并行。并且处理多发射指令时，需要增加寄存器读写口，增加控制逻辑。</li>
+<li>Tomasulo算法在处理存储指令的冲突时，需要额外加入控制逻辑以及硬件支持。</li>
+</ul>
+<h4 id="2-简要介绍引入重排序改进-tomasulo-的原理">2. 简要介绍引入重排序改进 Tomasulo 的原理。</h4>
+<p>在经典的Tomasulo算法中，指令的提交是乱序的，这可能导致不符合程序员期望的执行顺序，分支指令难以处理。为了解决这个问题，引入了ROB，作为指令执行的缓冲区。ROB保持指令的执行顺序，并在指令执行完毕后等待有序提交。</p>
+<p>ROB是一个类似FIFO队列的结构，其中包含了每条指令的信息，如编号、Busy位、State位、Destination和Value等字段。指令在发射时被分配ROB编号，等到执行完毕后再提交。ROB的结构允许指令在执行完毕后保持在队列中，而不立即修改逻辑寄存器。
+指令在ROB中按照它们在程序中的顺序等待提交。当一条指令成为ROB中最老的指令时，即ROB的头指针指向该指令，就可以有序提交。这确保了指令在逻辑寄存器中的修改按照程序顺序完成。与此同时，ROB也能代替RS的作用实现寄存器重命名，从而保证指令的效率。</p>
+<p>ROB的有序提交机制实现了精确中断，确保了在中断发生时能够保持指令的有序提交，而不会导致程序执行错误。ROB的引入允许在指令执行时清除保留站，从而提高了后续指令的发射效率。通过引入ROB，改进的Tomasulo算法克服了原始Tomasulo算法中的一些限制，使得乱序执行更符合程序员的预期，并提高了整体的性能和灵活性。</p>
+<h4 id="3-请分析重排序缓存的缺点">3. 请分析重排序缓存的缺点。</h4>
+<ul>
+<li>重排序缓存需要更多存储空间：在基于ROB的Tomasulo算法中，一个逻辑寄存器的结果被拷贝到多个地方，数据可能存在逻辑寄存器中，也可能存在保留站中，也可能存在ROB中，即一个数据需要三倍于数据长度的存储空间，从而需要更多资源。</li>
+<li>重排序缓存需要更多的硬件资源：指令的源数据可以从寄存器堆、CDB总线和ROB中取得。为了支持指令读取数据，需要在 ROB 中配置读口，增加了处理器内部逻辑和数据传递的布线压力。可能导致关键路径的延长，从而影响整体性能。此外，为了处理 ROB 中的数据，需要在读取数据的线路末尾增加选择器，进一步增加了设计的复杂性。</li>
+<li>重排序缓存可能引入延迟：尽管 ROB 可以提高指令级并行性，但在某些情况下，指令需要等待 ROB 中的其他指令完成执行才能提交。这可能引入一定的延迟。</li>
+<li>重排序缓存在多发射处理器中具有很大难度。为了满足多个指令同时读取 ROB 中的状态，ROB 需要支持多个读端口。在四发射的机器中，如果每个指令都需要两个读端口，ROB 就需要支持八个读端口。这种多端口读的实现增加了硬件结构的复杂性，可能导致更大的芯片面积和更高的功耗，同时也增加了设计和验证的难度。</li>
+</ul>
+<h2 id="三项目结构">三：项目结构</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Speculative Tomasulo
+</span></span><span class="line"><span class="cl">├─ input                // 输入样例
+</span></span><span class="line"><span class="cl">│  ├─ input1.txt
+</span></span><span class="line"><span class="cl">│  └─ input2.txt
+</span></span><span class="line"><span class="cl">├─ output               // 输出结果
+</span></span><span class="line"><span class="cl">│  ├─ output1.txt
+</span></span><span class="line"><span class="cl">│  └─ output2.txt
+</span></span><span class="line"><span class="cl">└─ src                  // 源代码
+</span></span><span class="line"><span class="cl">   ├─ main.py           // 主程序
+</span></span><span class="line"><span class="cl">   └─ cpu_component.py          // CPU中的功能单元
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>请在运行前配置好环境依赖，并使得项目结构如上所示，运行方式：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> src
+</span></span><span class="line"><span class="cl">python main.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>或者在IDE中运行main.py</p>
+<h2 id="四新增假设">四：新增假设</h2>
+<p>针对作业要求中未说明的细节，在本次实验中采用以下假设，假设原理符合课件“Chap03-ILP-Part3-Speculation-v2”内容。</p>
+<ol>
+<li>作业要求中假设有三个加载缓冲区插槽和三个存储缓冲区插槽，因为仿真器架构中并无存储缓冲区、课件与书本内容中均将存储缓冲区与ROB结合，因此在本次实验中假设有三个加载缓冲区插槽，存储缓冲区插槽集成在ROB中实现。</li>
+<li>假设Load指令经历IF/EX/WB/COMMIT四个阶段，指令发射与提交各需一个时钟周期，EX执行地址计算与加载内存访问(共需两个时钟周期)；<strong>Store 指令经历IF/EX/COMMIT三个阶段，在EX阶段执行地址计算并等待需要写入数据，因为Store指令无需广播，因此直接连接COMMIT阶段</strong>，所以在无需等待数据以及满足Commit条件时，Store指令共需三个时钟周期。</li>
+<li>假设ROB使用循环队列的方式，队列长度为6。</li>
+<li>假设RS保留站的数量分别为：Load为2个、Add为3个、Mult为2个；<strong>并且实际的可并行的功能单元数量与RS保留站数量相等</strong>，即同一功能单元不同保留站中的指令可以同时执行。</li>
+<li>在结果输出部分中，为了能够能明显的突出实现结果，进行以下约定：ROB采用循环队列的模式，因此展示最近的六条ROB记录；RS记录中，若vj、qj中数据是直接从寄存器组中获得，则输出类似于<code>Reg[F1]</code>；若是从总线广播或者ROB与寄存器组连接数据线中获得，则输出类似为<code>#1</code>，具体数值可以参照对应ROB中的<code>value</code>属性(本次实验中，总线参照真实模型传输数据，只是在输出时进行了统一简化)；vk、qk中数据输出类似于<code>#x</code>，表示等待对应ROB x 中结果。此外类型为<code>Load</code>的RS保留站只负责输出<code>Load</code>类型缓存区，<code>Store</code>缓冲区内容集成到ROB中进行输出。其余输出内容均按照假设进行。</li>
+<li>最终指令最终执行情况表中，输出格式“(Instruction):(Issue cycle),(Exec comp cycle),(Write result
+cycle),(Commit cycle)；”。例如<code>LD F6 34 R2: 1,3,4,5</code>，代表该指令在时钟 1 进行发射并完成，在时钟 3 结束时执行完毕，在时钟 4 进行Write result并完成，在时钟 5 进行Commit并完成。</li>
+<li>能够实现的指令仅包含两个输入样例中出现过的指令，指令格式参考输入样例中格式。</li>
+</ol>
+<h2 id="五仿真器实现思路与具体实现方法">五：仿真器实现思路与具体实现方法</h2>
+<img src="D:\大学学习资料\大三上\体系结构\大作业\Speculative Tomasulo\1.png" alt="image" height="400px">   
+<p><strong>依照仿真器架构进行设计，设计各个CPU中的功能部件</strong>，例如：ROB、RS保留站、FP计算部件、总线、寄存器组、内存等等；最后通过一个CPU类将各个功能部件组合在一起，同时由CPU提供控制逻辑，最大程度还原CPU中Speculative Tomasulo算法工作原理。</p>
+<p>源代码文件中完整代码以及更加详细、可读性高的注释，下面展示部分略去部分注释以及一些较简单的代码，旨在突出本次实验仿真器实现思路与的具体实现方法，突出关键代码。</p>
+<h3 id="cpu-类"><code>CPU</code> 类</h3>
+<p><code>CPU</code> 类位于 <code>main.py</code> 中，仿真CPU的工作过程，将在cpu_component中实现的各个CPU中功能单元按照所要求的的仿真器架构搭建起来，总控各个功能单元并在类函数中实现模拟运行、按要求保存运行结果。<br>
+<code>CPU</code>类的私有属性为各个功能单元的实例化，时钟周期以及指令队列</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">CPU</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_registers</span><span class="p">,</span> <span class="n">memory_size</span><span class="p">,</span> <span class="n">num_load_buffers</span><span class="p">,</span> <span class="n">num_rob_entries</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                 <span class="n">instruction_queue</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">Bus</span><span class="p">()</span>    <span class="c1"># 创建总线</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">rob_bus</span> <span class="o">=</span> <span class="n">Bus</span><span class="p">()</span>    <span class="c1"># 创建rob使用的数据bus</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span> <span class="o">=</span> <span class="n">RegisterGroup</span><span class="p">(</span><span class="n">num_registers</span><span class="p">,</span> <span class="n">rob_bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rob_bus</span><span class="p">)</span>    <span class="c1"># 创建寄存器组</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">Memory</span><span class="p">(</span><span class="n">memory_size</span><span class="p">,</span> <span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">,</span> <span class="n">num_load_buffers</span><span class="o">=</span><span class="n">num_load_buffers</span><span class="p">)</span>  <span class="c1"># 创建内存</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">fp_add</span> <span class="o">=</span> <span class="n">FPUnit</span><span class="p">(</span><span class="n">unit_type</span><span class="o">=</span><span class="s2">&#34;Add&#34;</span><span class="p">,</span> <span class="n">num_reservation_stations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">execution_cycles</span><span class="o">=</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;ADDD&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&#34;SUBD&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span> <span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">)</span>    <span class="c1"># 创建浮点数执行单元</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">fp_multd</span> <span class="o">=</span> <span class="n">FPUnit</span><span class="p">(</span><span class="n">unit_type</span><span class="o">=</span><span class="s2">&#34;Mult&#34;</span><span class="p">,</span> <span class="n">num_reservation_stations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">execution_cycles</span><span class="o">=</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;MULTD&#34;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&#34;DIVD&#34;</span><span class="p">:</span> <span class="mi">20</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span> <span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">reorder_buffer</span> <span class="o">=</span> <span class="n">ReorderBuffer</span><span class="p">(</span><span class="n">num_rob_entries</span><span class="p">,</span> <span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">,</span> <span class="n">rob_bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rob_bus</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">clock_cycles</span> <span class="o">=</span> <span class="mi">0</span>    <span class="c1"># 初始化时钟周期计数</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">instruction_queue</span> <span class="o">=</span> <span class="n">instruction_queue</span>  <span class="c1"># 设置初始指令队列</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>CPU</code> 类的 <code>run_simulation</code> 方法模拟整个过程开始，管理CPU时钟。该函数负责调用类中的其他函数，进行模拟指令发射、运行、写回过程：</p>
+<ol>
+<li>调用 <code>issue_instruction</code> 方法发射指令；</li>
+<li>调用<code>update_component</code> 方法，执行一个时钟周期，模拟真实环境中各个功能单元根据时钟执行操作更新状态；</li>
+<li>调用寄存器组和数据总线的 <code>update</code> 方法，模拟真实环境中寄存器组以及数据总线中根据时钟的数据写回过程；</li>
+<li>按要求记录本周期中ROB、RS保留站以及寄存器组状态。
+按照输出要求将每阶段的输出写入output文件中，并根据所有功能单元都工作结束后结束模拟。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 用于处理前后两个周期输出相同状态</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pre_state</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">same_counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">clock_cycles</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 模拟时钟周期开始</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Clock Cycle：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clock_cycles</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">issue_instructions</span><span class="p">()</span>   <span class="c1"># 阶段 1：发射指令</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">update_components</span><span class="p">()</span>    <span class="c1"># 阶段 2：更新各个组件</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>    <span class="c1"># 阶段 3：模拟写回</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">rob_bus</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="n">new_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_component_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clock_cycles</span><span class="p">)</span>   <span class="c1"># 记录组件状态到文件，包含处理重复输出操作</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span> <span class="c1"># 检查新状态是否与前一状态不同</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">are_all_components_idle</span><span class="p">():</span>  <span class="c1"># 检查是否所有组件都处于空闲状态</span>
+</span></span><span class="line"><span class="cl">                <span class="o">...</span><span class="c1"># 如果是，则模拟结束.按要求添加每条指令四个阶段代表周期</span>
+</span></span><span class="line"><span class="cl">                    
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>CPU</code> 类的 <code>issue_instruction</code> 方法负责按序发射指令：</p>
+<ol>
+<li>先检查是否有未发射指令；</li>
+<li>若有则继续检查是否有空闲的ROB可以发射；</li>
+<li>根据指令的不同判断是否有空闲的RS可以发射，并且判断指令的操作数是否就绪；</li>
+<li>若指令会更新寄存器则调用寄存器组更新函数，进行记录；</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">issue_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">instruction_queue</span><span class="p">:</span>  <span class="c1"># 检查指令队列是否非空</span>
+</span></span><span class="line"><span class="cl">            <span class="n">instruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instruction_queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 检查指令是否可以发射</span>
+</span></span><span class="line"><span class="cl">            <span class="n">sd_vj</span><span class="p">,</span> <span class="n">sd_qj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">destination</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rob_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_buffer</span><span class="o">.</span><span class="n">issue_instruction</span><span class="p">(</span><span class="n">instruction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock_cycles</span><span class="p">,</span> <span class="n">sd_vj</span><span class="p">,</span> <span class="n">sd_qj</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="ow">not</span> <span class="n">rob_index</span><span class="p">:</span>   <span class="c1"># 没有空闲ROB时，发射失败</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 根据指令类型调用相应的功能单元</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&#34;ADDD&#34;</span><span class="p">,</span> <span class="s2">&#34;SUBD&#34;</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">vj</span><span class="p">,</span> <span class="n">qj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">src1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">vk</span><span class="p">,</span> <span class="n">qk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">src2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp_add</span><span class="o">.</span><span class="n">issue_instruction</span><span class="p">(</span><span class="n">instruction</span><span class="p">,</span> <span class="n">vj</span><span class="p">,</span> <span class="n">vk</span><span class="p">,</span> <span class="n">qj</span><span class="p">,</span> <span class="n">qk</span><span class="p">,</span> <span class="n">rob_index</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">instruction_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">reorder_buffer</span><span class="o">.</span><span class="n">clear_rob</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&#34;MULTD&#34;</span><span class="p">,</span> <span class="s2">&#34;DIVD&#34;</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">                <span class="o">...</span> <span class="c1">#类似</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="s2">&#34;LD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="o">...</span> <span class="c1">#类似</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="s2">&#34;SD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">instruction_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Error Instruction!&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 更新目标寄存器的值</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">register_group</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">rob_index</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>CPU</code> 类中还有三个方法，但不是本次实验重点部分。 <code>update_components</code> 方法负责调用各个功能部件的更新函数，实现按照时钟的更新(只是简单调用)；<code>record_component_state</code> 方法负责将每个周期的ROB、RS保留站、寄存器组状态转化为符合要求格式的字符串返回；<code>are_all_components_idle</code>方法负责调用各个功能部件的<code>finish</code>函数，用于判断是否整个仿真过程结束；(详细代码与注释可以参考源代码模块)</p>
+<h3 id="reorderbuffer-类"><code>ReorderBuffer</code> 类</h3>
+<p><code>ReorderBuffer</code>类中采用循环队列的方式实现了多条rob条目，通过<code>bus</code>总线进行数据传输，通过<code>rob_bus</code>与存储器进行数据传输。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ReorderBuffer</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">bus</span><span class="p">,</span> <span class="n">rob_bus</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># 多一个位置实现循环队列</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">bus</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">rob_bus</span> <span class="o">=</span> <span class="n">rob_bus</span>
+</span></span><span class="line"><span class="cl">        <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>ReorderBuffer</code> 类的 <code>issue_instruction</code> 方法实现指令发射到ROB当中。尝试在ROB缓冲区中创建新的ROB条目，将其加入缓冲区，并更新ROB头尾指针。如果ROB缓冲区未满，成功发射的ROB条目将被标记为&quot;Issue&quot;状态，其发射周期将被记录。对于SD指令，目标寄存器将被置为None，而vj和qj将被记录在SD数据字段中。如果ROB缓冲区已满，则发射失败。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">issue_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">,</span> <span class="n">clock_cycle</span><span class="p">,</span> <span class="n">vj</span><span class="p">,</span> <span class="n">qj</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">rob_index_counter</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 创建一个新的ROB条目</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rob_entry</span> <span class="o">=</span> <span class="n">ReorderBufferEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rob_index_counter</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">next_tail</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tail</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>  <span class="c1"># 尝试将ROB条目加入ROB缓冲区</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">next_tail</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">:</span>  <span class="c1"># 如果缓冲区未满，加入ROB条目</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span><span class="c1"># 处理普通条目与SD条目</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">rob_entry</span><span class="o">.</span><span class="n">rob_index</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>   <span class="c1"># 如果缓冲区已满，发射指令失败</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">rob_index_counter</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">None</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>ReorderBuffer</code> 类的 <code>update</code> 方法负责更新ROB组中条目。首先检查总线上是否有新数据，然后遍历ROB缓冲区中的每个条目，根据其状态和总线上的数据更新条目状态。同时，将满足条件的条目移动到Commit状态。如果总线上有新数据，且ROB中有对应的条目，则使用总线上的数据更新条目的值，并将其状态设为&quot;Write result&quot;，同时尝试将结果写回寄存器。最后，更新ROB的头指针。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clock_cycle</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">label</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">exec_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">exec</span>  <span class="c1"># 检查总线上是否有新数据</span>
+</span></span><span class="line"><span class="cl">        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 根据不同条件，更新ROB的四个状态</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="n">index</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tail</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&#34;Issue&#34;</span> <span class="ow">and</span> <span class="n">entry</span><span class="o">.</span><span class="n">rob_index</span> <span class="ow">in</span> <span class="n">exec_list</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">entry</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">&#34;Exec&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span> <span class="c1"># 类似</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_head</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因为将存储缓冲区集成到ROB当中，所以<code>ReorderBuffer</code> 类还有一个特殊的<code>update_sd</code>方法：该函数根据SD指令的特殊逻辑更新ROB中的条目状态，包括处理等待的操作数和转移到下一个状态。(与<code>update</code>方法并无太大区别，因此不再展示)</p>
+<h3 id="bus-类"><code>Bus</code> 类</h3>
+<p>总线类，用于在执行单元之间传递数据和标签。属性包含当前总线上的标签、数据以及新写入的标签、数据。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Bus</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_value</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">exec</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>Bus</code>类中还有<code>read</code>、<code>write</code>以及<code>update</code>方法，这些方法负责简单的读写操作，<code>update</code>方法检查总线是否有新的数据，如果有，则更新当前总线的标签和数据，否则清空总线上的标签和数据，并清空执行列表。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_value</span> <span class="o">=</span> <span class="n">data</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span> <span class="o">=</span> <span class="n">label</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_value</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_value</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">new_label</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">exec</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>说明：真实CPU中总线不会传递当前正在执行指令，因为项目输出中ROB中需要及时更改每个条目状态，因此在借助总线额外传递了一些信息(真实中ROB也不会在执行中更改，为了符合输出要求进行了一些合理修改)。</p>
+<h3 id="fpunit-类"><code>FPUnit</code> 类</h3>
+<p><code>FPUnit</code>类，模拟浮点运算单元的抽象，用于执行浮点数运算。该类包含多个保留站（ReservationStation）以协调浮点数指令的执行。初始化浮点数运算单元时，需要指定执行单元类型 、保留站数量、操作的执行周期，以及总线对象用于与总线通信。(同时也有一个简单的<code>ReservationStation</code>用以模拟RS保留站，包含RS保留站中各种属性)</p>
+<p><code>FPUnit</code> 类的 <code>issue_instruction</code> 方法负责将指令发射到保留站中。函数主要是判断是否有可用的保留站，如果成功发射，返回 True；否则返回 False。保留站中参数由<code>CPU</code>控制模块传入，该方法只需填入即可。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">issue_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">,</span> <span class="n">vj</span><span class="p">,</span> <span class="n">vk</span><span class="p">,</span> <span class="n">qj</span><span class="p">,</span> <span class="n">qk</span><span class="p">,</span> <span class="n">rob_index</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">rs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservation_stations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">rs</span><span class="o">.</span><span class="n">busy</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># 如果 Reservation Station 可用，发射指令，即在Reservation Station中加入对应属性</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">vj</span> <span class="o">=</span> <span class="n">vj</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">vk</span> <span class="o">=</span> <span class="n">vk</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">qj</span> <span class="o">=</span> <span class="n">qj</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">qk</span> <span class="o">=</span> <span class="n">qk</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">dest</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">destination</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">rob_index</span> <span class="o">=</span> <span class="n">rob_index</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">remain_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_cycles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">opcode</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">issue_this_cycle</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 如果没有可用的 Reservation Station，指令发射失败</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">False</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>FPUnit</code> 类的 <code>update</code> 方法负责执行一个周期。它遍历每个保留站，如果该保留站的 <code>busy</code> 字段为 <code>True</code>，则通过 <code>counter</code> 判断指令处于哪个阶段并作相应操作；该函数会返回在该周期执行完毕的指令的 PC，通过总线传递给ROB，实现ROB状态的更新操作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">label</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>   <span class="c1"># 从总线中读取写入的数据</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">rs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservation_stations</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">busy</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">qj</span> <span class="ow">or</span> <span class="n">rs</span><span class="o">.</span><span class="n">qk</span><span class="p">:</span>  <span class="c1"># 操作数未就绪，判断总线中广播数据是否需要</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">rs</span><span class="o">.</span><span class="n">qj</span> <span class="o">==</span> <span class="n">label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">rs</span><span class="o">.</span><span class="n">vj</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;#</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">rs</span><span class="o">.</span><span class="n">qj</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">                <span class="k">elif</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">rs</span><span class="o">.</span><span class="n">qk</span> <span class="o">==</span> <span class="n">label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">rs</span><span class="o">.</span><span class="n">vk</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;#</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">rs</span><span class="o">.</span><span class="n">qk</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="n">rs</span><span class="o">.</span><span class="n">remain_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 操作数已经就绪，执行</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">issue_this_cycle</span><span class="p">:</span>  <span class="c1"># 因为发射指令需要一个周期，因此需要跳过新发射的指令</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">rs</span><span class="o">.</span><span class="n">issue_this_cycle</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">exec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rs</span><span class="o">.</span><span class="n">rob_index</span><span class="p">)</span>  <span class="c1"># 将正在执行EX阶段的指令传递给ROB，用以修改ROB状态</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># 执行阶段</span>
+</span></span><span class="line"><span class="cl">                <span class="n">rs</span><span class="o">.</span><span class="n">remain_time</span> <span class="o">-=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">remain_time</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 若执行完成，根据要求输出格式记录结果</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rs</span><span class="o">.</span><span class="n">vj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">vj_result</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">vj</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">vj_result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;Reg[F</span><span class="si">{</span><span class="n">rs</span><span class="o">.</span><span class="n">vj</span><span class="si">}</span><span class="s2">]&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rs</span><span class="o">.</span><span class="n">vk</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">vk_result</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">vk</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">vk_result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;Reg[F</span><span class="si">{</span><span class="n">rs</span><span class="o">.</span><span class="n">vk</span><span class="si">}</span><span class="s2">]&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">&#34;ADDD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">vj_result</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="n">vk_result</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">elif</span> <span class="n">rs</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">&#34;SUBD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">vj_result</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">vk_result</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">elif</span> <span class="n">rs</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">&#34;MULTD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">vj_result</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">vk_result</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">elif</span> <span class="n">rs</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">&#34;DIVD&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">vj_result</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">vk_result</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Error operation!&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rs</span><span class="o">.</span><span class="n">rob_index</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>  <span class="c1"># 若当前总线有写入阶段，则需要下个周期再次尝试写入</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">rs</span><span class="o">.</span><span class="n">remain_time</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">rs</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rs</span><span class="o">.</span><span class="n">issue_this_cycle</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>FPUnit</code> 类的 <code>finish</code> 方法简单的检查是否所有的RS保留站均已经释放，即处于busy=False的状态。若全都空闲，则返回完成；否则返回未完成。(详细代码见源代码模块)</p>
+<h3 id="memory-类"><code>Memory</code> 类</h3>
+<p><code>Memory</code>类，模拟计算机中的内存单元，用于进行数据的存储读取操作。另外，该类包含<code>Load</code>缓冲区(Load Buffer)，使用与上文中<code>FPUnit</code>中一样的数据结构RS（ReservationStation）以模拟<code>Load</code>指令加载内存的执行。初始化浮点数运算单元时，需要指定<code>Load Buffer</code>数量、内存大小，以及总线对象用于与总线通信。</p>
+<p>在<code>Memory</code>类中主要实现的方法为<code>issue_instruction</code>以及<code>update</code>，分别用于发射指令与根据总线结果、每个时钟周期正确更新缓冲区状态。实现方式与上文所示<code>FPUnit</code>中实现方式一致，因此不再赘述。同时也在类中实现了<code>finishh</code>、<code>read</code>、<code>write</code>等简单辅助函数，用以更加真实模拟内存读写情况与辅助<code>CPU</code>调用判断是否完成所有指令。</p>
+<h3 id="registergroup-类"><code>RegisterGroup</code> 类</h3>
+<p><code>RegisterGroup</code> 类是一个用于管理通用寄存器和基址寄存器的实用工具。通过指定寄存器数量和与重排序缓冲区（ROB）通信的总线对象，创建了一组寄存器，并提供了<strong>读取和写入数据的方法</strong>。在时钟周期中，通过与ROB通信，可以<strong>更新寄存器的状态</strong>。实现方法较简单，具体参照源代码模块。(同时有一个简单的<code>Register</code>类用以模拟寄存器，包含寄存器各种状态属性)</p>
+<h3 id="辅助函数与main函数">辅助函数与<code>main</code>函数</h3>
+<p>最后还有一些辅助函数，例如<code>parse_instruction</code>、<code>trans</code>、<code>rs_state</code>等等用于：辅助处理指令，进行适当转换，记录RS保留站状态。(因为实现简单，均不再赘述)。</p>
+<p><strong>主函数模块</strong>，负责实例化<code>CPU</code>类，读取指令序列并处理，最后运行模拟过程。</p>
+<h2 id="六优化项目点">六：优化项目点</h2>
+<ol>
+<li>实现了一个周期内总线上只有一次合法的写事务，从而避免了同一周期对总线多次写入造成错误结果。</li>
+<li><strong>实现了对于ROB中的条目的清除</strong>，用于模拟分支条件判断语句错误时，对应的ROB操作。(更加突出Speculative Tomasulo算法特点)</li>
+<li><strong>实现了避免存储器冒险的操作</strong>，推测可以消除存储器中的 WAW 和 WAR 冒险；通过额外限制条件解决存储器中的 RAW 冒险：若一条存储指令占用的活动ROB项目的“目的地”字段与一条载入指令的A字段取值匹配，则不允许该载入指令开始执行第二步骤。</li>
+<li>操作数的来源可以是ROB、寄存器组、总线，本项目中合理考虑了多条数据线并发读写的情况。</li>
+</ol>
+<p>以上优化功能均在代码中进行了注释。</p>
+<h2 id="七实验结果与分析">七：实验结果与分析</h2>
+<p>实现仿真器的关键组件与思路见上一部分，在完成依赖环境配置之后，运行程序。在主函数中，读取标准输入文件转化为指令队列，设置输出文件，随后实例化<code>CPU</code>类(提供必要参数，本次实验参数参照假设进行设置)并调用类中模拟运行的方法即可。模拟运行会在所有指令运行结束之后，自动停止。</p>
+<p>本次实验完整输出结果见 <code>output1.txt</code> 和 <code>output2.txt</code>，这里举例样例 1 中的前几个时钟周期来说明本程序能够正确仿真CPU中 Tomasulo 动态调度算法，对输入指令进行动态调度。<strong>输出参照标准规定输出格式并在上文中对输出含义以及正确性进行了解释</strong></p>
+<ol>
+<li>第 1 个时钟周期，发射第一条指令到ROB以及RS保留站中，RS保留站可以中可以直接读取寄存器组中数据，寄存器组中F6变为busy且对应于ROB条目1，程序输出如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_1;
+</span></span><span class="line"><span class="cl">entry1 : Yes, fld F6 34(R2), Issue, F6, None;
+</span></span><span class="line"><span class="cl">entry2 :No,,,,;
+</span></span><span class="line"><span class="cl">entry3 :No,,,,;
+</span></span><span class="line"><span class="cl">entry4 :No,,,,;
+</span></span><span class="line"><span class="cl">entry5 :No,,,,;
+</span></span><span class="line"><span class="cl">entry6 :No,,,,;
+</span></span><span class="line"><span class="cl">Load1 : Yes, LD, Regs[R2], , , , #1;
+</span></span><span class="line"><span class="cl">Load2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Reorder:F0:;F1:;F2:;F3:;F4:;F5:;F6: 1;F7:;F8:;F9:;F10:;
+</span></span><span class="line"><span class="cl">Busy:F0:No;F1:No;F2:No;F3:No;F4:No;F5:No;F6:Yes;F7:No;F8:No;F9:No;F10:No;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>第 2 个时钟周期，第一条指令开始执行，ROB中状态变为Exec，同时发射第二条指令到ROB以及RS保留站中，寄存器组中也进行相应修改，程序输出如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_2;
+</span></span><span class="line"><span class="cl">entry1 : Yes, fld F6 34(R2), Exec, F6, None;
+</span></span><span class="line"><span class="cl">entry2 : Yes, fld F2 45(R3), Issue, F2, None;
+</span></span><span class="line"><span class="cl">entry3 :No,,,,;
+</span></span><span class="line"><span class="cl">entry4 :No,,,,;
+</span></span><span class="line"><span class="cl">entry5 :No,,,,;
+</span></span><span class="line"><span class="cl">entry6 :No,,,,;
+</span></span><span class="line"><span class="cl">Load1 : Yes, LD, Regs[R2], , , , #1;
+</span></span><span class="line"><span class="cl">Load2 : Yes, LD, Regs[R3], , , , #2;
+</span></span><span class="line"><span class="cl">Add1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Reorder:F0:;F1:;F2: 2;F3:;F4:;F5:;F6: 1;F7:;F8:;F9:;F10:;
+</span></span><span class="line"><span class="cl">Busy:F0:No;F1:No;F2:Yes;F3:No;F4:No;F5:No;F6:Yes;F7:No;F8:No;F9:No;F10:No;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>第 3 个时钟周期，第一、二条指令处于执行阶段，发射第三条指令到ROB以及RS保留站中(但是该指令所需的操作数 <code>F2</code> 依赖于第二条指令，尚未就绪，因此相应设置vj与qj)，同时更新寄存器组中状态，程序输出如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_3;
+</span></span><span class="line"><span class="cl">entry1 : Yes, fld F6 34(R2), Exec, F6, None;
+</span></span><span class="line"><span class="cl">entry2 : Yes, fld F2 45(R3), Exec, F2, None;
+</span></span><span class="line"><span class="cl">entry3 : Yes, fmul.d F0,F2,F4, Issue, F0, None;
+</span></span><span class="line"><span class="cl">entry4 :No,,,,;
+</span></span><span class="line"><span class="cl">entry5 :No,,,,;
+</span></span><span class="line"><span class="cl">entry6 :No,,,,;
+</span></span><span class="line"><span class="cl">Load1 : Yes, LD, Regs[R2], , , , #1;
+</span></span><span class="line"><span class="cl">Load2 : Yes, LD, Regs[R3], , , , #2;
+</span></span><span class="line"><span class="cl">Add1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : Yes, MULTD, , Regs[F4], #2, , #3;
+</span></span><span class="line"><span class="cl">Mult2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Reorder:F0: 3;F1:;F2: 2;F3:;F4:;F5:;F6: 1;F7:;F8:;F9:;F10:;
+</span></span><span class="line"><span class="cl">Busy:F0:Yes;F1:No;F2:Yes;F3:No;F4:No;F5:No;F6:Yes;F7:No;F8:No;F9:No;F10:No;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>第 4 个时钟周期，第一条指令执行完毕处于Write Result阶段，结果 <code>Mem(34+Regs[R2]])</code>，进行广播；第二条指令处于执行阶段；第三条指令因为操作数未就绪，仍然处于发射阶段；发射第四条指令，接受到广播的操作数<code>F6</code>，将数据填入vj中（但是该指令所需的操作数 <code>F2</code> 依赖于第二条指令，尚未就绪），程序输出如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_4;
+</span></span><span class="line"><span class="cl">entry1 : Yes, fld F6 34(R2), Write result, F6, Mem[34+Regs[R2]];
+</span></span><span class="line"><span class="cl">entry2 : Yes, fld F2 45(R3), Exec, F2, None;
+</span></span><span class="line"><span class="cl">entry3 : Yes, fmul.d F0,F2,F4, Issue, F0, None;
+</span></span><span class="line"><span class="cl">entry4 : Yes, fsub.d F8,F6,F2, Issue, F8, None;
+</span></span><span class="line"><span class="cl">entry5 :No,,,,;
+</span></span><span class="line"><span class="cl">entry6 :No,,,,;
+</span></span><span class="line"><span class="cl">Load1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Load2 : Yes, LD, Regs[R3], , , , #2;
+</span></span><span class="line"><span class="cl">Add1 : Yes, SUBD, #1, , , #2, #4;
+</span></span><span class="line"><span class="cl">Add2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : Yes, MULTD, , Regs[F4], #2, , #3;
+</span></span><span class="line"><span class="cl">Mult2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Reorder:F0: 3;F1:;F2: 2;F3:;F4:;F5:;F6: 1;F7:;F8: 4;F9:;F10:;
+</span></span><span class="line"><span class="cl">Busy:F0:Yes;F1:No;F2:Yes;F3:No;F4:No;F5:No;F6:Yes;F7:No;F8:Yes;F9:No;F10:No;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>第 5 个时钟周期，第一条判断能够Commit，因此修改自身状态并将结果值写入寄存器<code>F6</code>中，寄存器组进行相应修改；第二条指令执行完毕，将结果 <code>Mem[45+Regs[R3]]</code> 通过总线进行广播，同时第三、四条指令在总线中将需要的数据<code>F2</code>进行读取，转为就绪状态，发射第五条指令（但是该指令所需的操作数 <code>F0</code> 依赖于第三条指令，尚未就绪），程序输出如下：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_5;
+</span></span><span class="line"><span class="cl">entry1 : No, fld F6 34(R2), Commit, F6, Mem[34+Regs[R2]];
+</span></span><span class="line"><span class="cl">entry2 : Yes, fld F2 45(R3), Write result, F2, Mem[45+Regs[R3]];
+</span></span><span class="line"><span class="cl">entry3 : Yes, fmul.d F0,F2,F4, Issue, F0, None;
+</span></span><span class="line"><span class="cl">entry4 : Yes, fsub.d F8,F6,F2, Issue, F8, None;
+</span></span><span class="line"><span class="cl">entry5 : Yes, fdid.d F10,F0,F6, Issue, F10, None;
+</span></span><span class="line"><span class="cl">entry6 :No,,,,;
+</span></span><span class="line"><span class="cl">Load1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Load2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add1 : Yes, SUBD, #1, #2, , , #4;
+</span></span><span class="line"><span class="cl">Add2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : Yes, MULTD, #2, Regs[F4], , , #3;
+</span></span><span class="line"><span class="cl">Mult2 : Yes, DIVD, , #1, #3, , #5;
+</span></span><span class="line"><span class="cl">Reorder:F0: 3;F1:;F2: 2;F3:;F4:;F5:;F6:;F7:;F8: 4;F9:;F10: 5;
+</span></span><span class="line"><span class="cl">Busy:F0:Yes;F1:No;F2:Yes;F3:No;F4:No;F5:No;F6:No;F7:No;F8:Yes;F9:No;F10:Yes;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>第 6 个时钟周期，第二条指令判断能够Commit，将数据写入寄存器<code>F2</code>中，相应修改寄存器组状态；第三、四条在上一个周期操作数就绪，因此该周期中进入执行Exec状态；发射第六条指令到ROB以及RS保留站中（但是该指令所需的操作数 <code>F8</code> 依赖于第四条指令，尚未就绪）。第 7 个时钟周期，状态相同，因此合并输出：</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">cycle_6-7;
+</span></span><span class="line"><span class="cl">entry1 : No, fld F6 34(R2), Commit, F6, Mem[34+Regs[R2]];
+</span></span><span class="line"><span class="cl">entry2 : No, fld F2 45(R3), Commit, F2, Mem[45+Regs[R3]];
+</span></span><span class="line"><span class="cl">entry3 : Yes, fmul.d F0,F2,F4, Exec, F0, None;
+</span></span><span class="line"><span class="cl">entry4 : Yes, fsub.d F8,F6,F2, Exec, F8, None;
+</span></span><span class="line"><span class="cl">entry5 : Yes, fdid.d F10,F0,F6, Issue, F10, None;
+</span></span><span class="line"><span class="cl">entry6 : Yes, fadd.d F6,F8,F2, Issue, F6, None;
+</span></span><span class="line"><span class="cl">Load1 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Load2 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Add1 : Yes, SUBD, #1, #2, , , #4;
+</span></span><span class="line"><span class="cl">Add2 : Yes, ADDD, , #2, #4, , #6;
+</span></span><span class="line"><span class="cl">Add3 : NO,,,,,,;
+</span></span><span class="line"><span class="cl">Mult1 : Yes, MULTD, #2, Regs[F4], , , #3;
+</span></span><span class="line"><span class="cl">Mult2 : Yes, DIVD, , #1, #3, , #5;
+</span></span><span class="line"><span class="cl">Reorder:F0: 3;F1:;F2:;F3:;F4:;F5:;F6: 6;F7:;F8: 4;F9:;F10: 5;
+</span></span><span class="line"><span class="cl">Busy:F0:Yes;F1:No;F2:No;F3:No;F4:No;F5:No;F6:Yes;F7:No;F8:Yes;F9:No;F10:Yes;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行完毕全部六条指令共需 39 个时钟周期，详细输出结果见<code>output1.txt</code>文件，并且程序运行过程中也加入了一些<code>print</code>帮助理解指令运行状况。最终每条指令发射、执行结束、写回的时钟周期如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">LD F6 34 R2: 1,3,4,5
+</span></span><span class="line"><span class="cl">LD F2 45 R3: 2,4,5,6
+</span></span><span class="line"><span class="cl">MULTD F0 F2 F4: 3,15,16,17
+</span></span><span class="line"><span class="cl">SUBD F8 F6 F2: 4,7,8,18
+</span></span><span class="line"><span class="cl">DIVD F10 F0 F6: 5,36,37,38
+</span></span><span class="line"><span class="cl">ADDD F6 F8 F2: 6,10,11,39
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="八实验总结">八：实验总结</h2>
+<p>Speculative Tomasulo算法的乱序执行和分支预测能够显著提高处理器的性能和效率。通过充分利用可用的执行单元，并在执行过程中处理异常情况，算法能够实现更高的指令级并行性，从而加速指令的执行。</p>
+<p>算法的Reservation Station和重命名表在处理器设计中起着关键作用。Reservation Station跟踪指令的操作数可用性，允许指令按需发射和执行，而重命名表则用于处理异常和维护执行状态，确保指令的正确执行和结果的正确写回。</p>
+<p>基于作者时间、知识与精力有限，本项目只是一个仿真版的Speculative Tomasulo算法实现。后续还有大量的工作可以进行完善，本项目全部代码与报告展示已经开源于：</p>
+<p>[项目链接](<a class="link" href="https://github.com/0702ccc/Speculative-Tomasulo"  target="_blank" rel="noopener"
+    >0702ccc/Speculative-Tomasulo (github.com)</a>)</p>
+<p>如有错漏之处 敬请指正🤝</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/tomasulo/">Tomasulo</a>
+        
+            <a href="/tags/project/">Project</a>
+        
+            <a href="/tags/algorithm/">Algorithm</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="0702ccc/0702ccc.github.io"
+    data-repo-id="R_kgDOLZkHYw"
+    data-category="Announcements"
+    data-category-id="DIC_kwDOLZkHY84Cdoiv"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="0"
+    data-lang="en"
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('0');
+            } else {
+                setGiscusTheme('dark_dimmed');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Lijt&#39;s Blog
+        
+
+        
+            <br />
+            This site has been running steadily for <i class="fas fa-bell"></i> <a id="days">0</a> days
+        
+    
+        
+            <br/>
+            
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+            
+            
+            Total
+            
+            4&nbsp;
+            articles
+            &nbsp|
+            Total
+            3.96k&nbsp;
+            words
+        
+        
+    </section>
+    
+    <section class="powerby">
+        
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.22.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 
+        
+    </section>
+
+    
+        <script>
+            var s1 = "2024-03-01";
+            s1 = new Date(s1.replace(/-/g, "/"));
+            s2 = new Date();
+            var days = s2.getTime() - s1.getTime();
+            var number_of_days = parseInt(days / (1000 * 60 * 60 * 24));
+            document.getElementById('days').innerHTML = number_of_days;
+        </script>
+    
+
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
